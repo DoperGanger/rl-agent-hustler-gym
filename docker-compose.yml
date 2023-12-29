@@ -1,0 +1,16 @@
+version: "3"
+services:
+  hustler-training:
+    image: h-training:latest
+    container_name: hustler-training
+    build:
+      context: .
+    env_file:
+      - .env
+    ports:
+      - 8882:8882
+    command: bash
+    #tty: true 
+    #stdin_open: true
+    volumes:
+      - .:/home
