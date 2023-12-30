@@ -47,3 +47,6 @@ next-env.d.ts
 
 # datascience
 /data
+
+# pycache
+__pycache__/
