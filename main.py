@@ -3,6 +3,7 @@ import numpy as np
 import time
 
 from environment import Env
+from agent import Agent
 
 # Colors
 ORANGE = (255, 165, 0)
@@ -37,11 +38,20 @@ clock = pygame.time.Clock()
 # Initialize Environment
 env = Env(gameDisplay, 20, 20) #display, rows, columns
 # set obstacles config if any
-#env.set_obstacles([])
+env.set_obstacles([])
 
 # Initialize Agents
-# cat = Agent(env, possibleActions = 4)
-# mouse = Agent(env, possibleActions = 4)
+catcher = Agent(env, possibleActions = 4)
+hustler = Agent(env, possibleActions = 4)
+
+# Load the policies
+dir = 'policies/'
+hustler.load_policy(dir+'mouse.pickle')
+catcher.load_policy(dir+'cat.pickle')
+
+# Init Stats
+total_goals_reached = 0
+total_hustlers_busted = 0
 
 # Number of Episodes
 num_episodes = 1000
@@ -52,9 +62,10 @@ for i_episode in range(1, num_episodes+1):
 
     env.render(i_episode)
 
-
     # Init Action for Agents
-
+    action_hustler = hustler.take_action(state['hustler'])
+    action_catcher = catcher.take_action(state['catcher'])
+    
     # loop until game is done
     while True:
         for event in pygame.event.get():
@@ -63,21 +74,26 @@ for i_episode in range(1, num_episodes+1):
                 quit()
 
         # env step forward with chosen actions
-        #next_state, reward, done, info = env.step()
+        next_state, reward, done, info = env.step(action_hustler, action_catcher)
 
         gameDisplay.fill(WHITE) #background color
         env.render(i_episode)
-        show_info(0, 0, gameDisplay) #goals, busts, game_display
+        show_info(total_goals_reached, total_hustlers_busted, gameDisplay) #goals, busts, game_display
 
         pygame.display.update()
         clock.tick(60)
 
-        # if done:
-            # update scores and info
-        #   break
+        if done:
+            if info['goal_reached']:
+                total_goals_reached += 1
+                draw_rect(GREEN, info['x'], info['y'], info['width'], info['height'])       
+            
+            if info['hustler_caught']:
+                total_hustlers_busted += 1
+                draw_rect(RED, info['x'], info['y'], info['width'], info['height'])  
+            break
 
-        # update state and next action
-        # if loop:
-        #     action_mouse = np.random.randint(0, 5)
-        #     action_cat = np.random.randint(0, 5)
-        #     loop = False
+        # Update state and action
+        state = next_state
+        action_hustler = hustler.take_action(state['hustler'])
+        action_catcher = catcher.take_action(state['catcher'])

@@ -3,7 +3,7 @@ import numpy as np
 import random
 
 class Env():
-    
+
     def __init__(self, display, rows, columns):
         self.HEIGHT = rows # y
         self.WIDTH = columns # x
@@ -115,7 +115,7 @@ class Env():
             info['goal_reached'], info['x'], info['y'] = True,  self.HUSTLER_X, self.HUSTLER_Y
         
         #catcher caught the hustler
-        if self.CATCHER_X == self.HUSTLER_X and self.CAT_Y == self.HUSTLER_Y:
+        if self.CATCHER_X == self.HUSTLER_X and self.CATCHER_Y == self.HUSTLER_Y:
             done = True
             reward['catcher'] = 50
             reward['hustler'] = -20
@@ -131,7 +131,31 @@ class Env():
                 self.CATCHER_X, self.CATCHER_Y = (0, self.HEIGHT -1)
 
         return self.get_state(), reward, done, info
+    
+
+    def update_positions(self, hustler_action, catcher_action): # Update agents' position
+        x_change_hustler, y_change_hustler = self.get_changes(hustler_action)
+        x_change_catcher, y_change_catcher = self.get_changes(catcher_action)
+
+        self.HUSTLER_X += x_change_hustler 
+        self.HUSTLER_Y += y_change_hustler
+
+        self.CATCHER_X += x_change_catcher
+        self.CATCHER_Y += y_change_catcher
+
+    def get_changes(self, action): # Get changes by action choosed
+        x_change, y_change = 0, 0
+        if action == 0:
+            x_change = -1   #moving LEFT
+        elif action == 1:
+            x_change = 1    #moving RIGHT
+        elif action == 2:
+            y_change = -1   #moving UP
+        elif action ==3:
+            y_change = 1    #moving DOWN
         
+        return x_change, y_change
+    
     def getRandomIndexPos(self, indices):
         return indices[np.random.randint(0, len(indices))]
 
@@ -168,7 +192,7 @@ class Hustler():
         self.WIDTH = width 
         self.HEIGHT = height
     
-        self.IMG = pygame.image.load('sprites/hustler.png')
+        self.IMG = pygame.image.load('sprites/pinkman.png')
         self.IMG = pygame.transform.scale(self.IMG, (self.WIDTH, self.HEIGHT))
 
 
