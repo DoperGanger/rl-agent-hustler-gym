@@ -5,6 +5,7 @@ import pickle
 import os
 
 import csv
+import json
 
 class Agent:
 
@@ -16,7 +17,7 @@ class Agent:
         self.Q = defaultdict(lambda: np.zeros(self.possibleActions))  #Q-TABLE
 
 
-    def get_action(self, state, epsilon):
+    def greedy_action(self, state, epsilon):
         '''
             Choose the action to do:
                 - The best move is chosen from the Q-table with a probability of 1-epsilon
@@ -29,7 +30,7 @@ class Agent:
         else:
             # explore when within epsilon
             return np.random.choice(np.arange(self.possibleActions))
-
+        
 
     def Q_learn(self, state, action, reward, next_state):
         '''
@@ -49,7 +50,6 @@ class Agent:
         for state, action in self.Q.items():
             policy[state] = np.argmax(action)
         self.policy = policy
-
 
     def save_policy(self, dir, name, savePolicytable):
         '''
@@ -73,16 +73,23 @@ class Agent:
         except :
             print('not saved')
     
-
     def saveQtableToCsv(self, dir):
         w = csv.writer(open(dir+"Qtable.csv", "w"))
         
         # loop over dictionary keys and values
         for key, val in self.Q.items():
-        
         # write every key and value to file
             w.writerow([key, val])
 
+    def convertQtableToDict(self):
+        Q = dict()
+        for key, val in self.Q.items():
+            Q[str(key)] = val.tolist()
+        return Q
+
+    def saveQtableToJson(self, dir):
+        with open(dir+"Qtable.json", "w") as outfile: 
+            json.dump(self.convertQtableToDict(), outfile)
 
     def savePolicyToCsv(self, dir):
         policy = dict(self.policy)
@@ -94,7 +101,7 @@ class Agent:
             # write every key and value to file
             w.writerow([key, val])
 
-        
+    
     def load_policy(self, directory):
         '''
             Load an existing policy

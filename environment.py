@@ -143,6 +143,11 @@ class Env():
         self.CATCHER_X += x_change_catcher
         self.CATCHER_Y += y_change_catcher
 
+        # a fix for going out of bounds
+        self.HUSTLER_X, self.HUSTLER_Y = self.fix(self.HUSTLER_X, self.HUSTLER_Y)
+        self.CATCHER_X, self.CATCHER_Y = self.fix(self.CATCHER_X, self.CATCHER_Y)
+
+
     def get_changes(self, action): # Get changes by action choosed
         x_change, y_change = 0, 0
         if action == 0:
@@ -155,12 +160,29 @@ class Env():
             y_change = 1    #moving DOWN
         
         return x_change, y_change
-    
+
+
     def getRandomIndexPos(self, indices):
         return indices[np.random.randint(0, len(indices))]
 
+
     def indexToXY(self, index):
         return (index % self.WIDTH, index // self.WIDTH)
+
+
+    def fix(self, x, y):
+        # If agents out of bounds, fix!
+        if x < 0:
+            x = 0
+        elif x > self.WIDTH-1:
+            x = self.WIDTH-1
+        if y < 0:
+            y = 0
+        elif y > self.HEIGHT -1:
+            y = self.HEIGHT -1
+
+        return x, y
+
 
     # === Info Panels ===
             

@@ -12,16 +12,16 @@ WHITE = (255,255,255)
 RED = (255, 0, 0)
 BLACK = (0,0,0)
 
-display_width, display_height = 800, 900
+display_width, display_height = 500, 600
 
 def show_info(goals, busts, game_display):
-    pygame.draw.rect(gameDisplay, BLACK, [0, 800, 800, 5])
+    pygame.draw.rect(gameDisplay, BLACK, [0, 500, 500, 5])
     font = pygame.font.SysFont(None, 40)
     text1 = font.render("Total Hustlers Escaped: "+str(goals), True, GREEN)
     text2 = font.render("Total Hustlers Busted: "+str(busts), True, RED)
     
-    game_display.blit(text1,(50,810))
-    game_display.blit(text2,(50,855))	
+    game_display.blit(text1,(50,510))
+    game_display.blit(text2,(50,555))	
 
 def draw_rect(game_display, color, x, y, width, height):
     pygame.draw.rect(game_display, color, [x*width, y*height, width, height], 10)
@@ -36,7 +36,7 @@ clock = pygame.time.Clock()
 
 
 # Initialize Environment
-env = Env(gameDisplay, 20, 20) #display, rows, columns
+env = Env(gameDisplay, 10, 10) #display, rows, columns
 # set obstacles config if any
 env.set_obstacles([])
 
@@ -53,19 +53,22 @@ catcher.load_policy(dir+'cat.pickle')
 total_goals_reached = 0
 total_hustlers_busted = 0
 
-# Number of Episodes
-num_episodes = 1000
+# Init Learning Params
+num_episodes = 2
+epsilon, eps_decay, eps_min = 1.0, 0.99, 0.05
 
 for i_episode in range(1, num_episodes+1):
 
+    epsilon = max(epsilon*eps_decay, eps_min)
     state = env.reset()
 
+    # Init Action for Agents
+    action_hustler = hustler.greedy_action(state['hustler'], epsilon)
+    action_catcher = catcher.greedy_action(state['catcher'], epsilon)
+    
+    #render the environment  
     env.render(i_episode)
 
-    # Init Action for Agents
-    action_hustler = hustler.take_action(state['hustler'])
-    action_catcher = catcher.take_action(state['catcher'])
-    
     # loop until game is done
     while True:
         for event in pygame.event.get():
@@ -75,6 +78,10 @@ for i_episode in range(1, num_episodes+1):
 
         # env step forward with chosen actions
         next_state, reward, done, info = env.step(action_hustler, action_catcher)
+
+        #provide feedback to agents
+        hustler.Q_learn(state['hustler'], action_hustler, reward['hustler'], next_state['hustler'])
+        catcher.Q_learn(state['catcher'], action_catcher, reward['catcher'], next_state['catcher'])
 
         gameDisplay.fill(WHITE) #background color
         env.render(i_episode)
@@ -86,14 +93,29 @@ for i_episode in range(1, num_episodes+1):
         if done:
             if info['goal_reached']:
                 total_goals_reached += 1
-                draw_rect(GREEN, info['x'], info['y'], info['width'], info['height'])       
+                draw_rect(gameDisplay, GREEN, info['x'], info['y'], info['width'], info['height'])       
             
             if info['hustler_caught']:
                 total_hustlers_busted += 1
-                draw_rect(RED, info['x'], info['y'], info['width'], info['height'])  
+                draw_rect(gameDisplay, RED, info['x'], info['y'], info['width'], info['height'])  
             break
 
-        # Update state and action
+        # Update state
         state = next_state
-        action_hustler = hustler.take_action(state['hustler'])
-        action_catcher = catcher.take_action(state['catcher'])
+
+        # What action to take next?
+
+        # greedy action?
+
+        # policy action?
+        action_hustler = hustler.greedy_action(state['hustler'], epsilon)
+        action_catcher = catcher.greedy_action(state['catcher'], epsilon)
+
+hustler.set_policy(saveQtable=False, dir='')
+catcher.set_policy(saveQtable=False, dir='')
+
+hustler.saveQtableToCsv('policies/'+str(num_episodes)+'hustler')
+catcher.saveQtableToCsv('policies/'+str(num_episodes)+'catcher')
+
+hustler.saveQtableToJson('policies/'+str(num_episodes)+'hustler')
+catcher.saveQtableToJson('policies/'+str(num_episodes)+'catcher')
