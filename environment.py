@@ -106,6 +106,10 @@ class Env():
         if self.MOVES['catcher'] == 0 or self.MOVES['hustler'] == 0:
             done = True
 
+        # track previous positions
+        prev_hustler_x, prev_hustler_y = self.HUSTLER_X, self.HUSTLER_Y
+        prev_catcher_x, prev_catcher_y = self.CATCHER_X, self.CATCHER_Y
+
         self.update_positions(hustler_action, catcher_action)
         
         #hustler reached the goal
@@ -121,6 +125,7 @@ class Env():
             reward['hustler'] = -20
             info['hustler_caught'], info['x'], info['y'] = True,  self.HUSTLER_X, self.HUSTLER_Y
         
+        # if hit obstacles we port them back to the start and penalize?
         for obs in self.OBSTACLES:
             if self.HUSTLER_X == obs[0] and self.HUSTLER_Y == obs[1]:
                 reward['hustler'] = -20
@@ -129,6 +134,12 @@ class Env():
             if self.CATCHER_X == obs[0] and self.CATCHER_Y == obs[1]:    
                 reward['catcher'] = -20
                 self.CATCHER_X, self.CATCHER_Y = (0, self.HEIGHT -1)
+        
+        # if position no change (meaning they went out of bounds of env), penalize?
+        if prev_hustler_x == self.HUSTLER_X and prev_hustler_y == self.HUSTLER_Y:
+            reward['hustler'] = -20
+        if prev_catcher_x == self.CATCHER_X and prev_catcher_y == self.CATCHER_Y:
+            reward['catcher'] = -20
 
         return self.get_state(), reward, done, info
     
