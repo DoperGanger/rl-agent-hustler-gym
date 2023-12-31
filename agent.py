@@ -91,6 +91,13 @@ class Agent:
         with open(dir+"Qtable.json", "w") as outfile: 
             json.dump(self.convertQtableToDict(), outfile)
 
+    def loadQtableFromJson(self,path):
+        with open(path, "r") as outfile: 
+            Q = json.load(outfile)
+        self.Q = defaultdict(lambda: np.zeros(self.possibleActions))
+        for key, val in Q.items():
+            self.Q[key] = np.array(val)
+
     def savePolicyToCsv(self, dir):
         policy = dict(self.policy)
         w = csv.writer(open(dir+"Policy.csv", "w"))

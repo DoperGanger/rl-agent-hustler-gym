@@ -44,27 +44,30 @@ env.set_obstacles([])
 catcher = Agent(env, possibleActions = 4)
 hustler = Agent(env, possibleActions = 4)
 
-# Load the policies
+# Load the policies / load qTables
 dir = 'policies/'
-hustler.load_policy(dir+'mouse.pickle')
-catcher.load_policy(dir+'cat.pickle')
+# hustler.load_policy(dir+'mouse.pickle')
+# catcher.load_policy(dir+'cat.pickle')
+hustler.loadQtableFromJson(dir+'5000hustlerQtable.json')
+catcher.loadQtableFromJson(dir+'5000catcherQtable.json')
+
 
 # Init Stats
 total_goals_reached = 0
 total_hustlers_busted = 0
 
 # Init Learning Params
-num_episodes = 5000
-epsilon, eps_decay, eps_min = 1.0, 0.99, 0.05
+num_episodes = 100
+#epsilon, eps_decay, eps_min = 1.0, 0.99, 0.05
 
 for i_episode in range(1, num_episodes+1):
 
-    epsilon = max(epsilon*eps_decay, eps_min)
+    #epsilon = max(epsilon*eps_decay, eps_min)
     state = env.reset()
 
-    # Init Action for Agents
-    action_hustler = hustler.greedy_action(state['hustler'], epsilon)
-    action_catcher = catcher.greedy_action(state['catcher'], epsilon)
+    # Init Action for Agents (greedy policy from Q-table, so set epsilon 0)
+    action_hustler = hustler.greedy_action(state['hustler'], 0)
+    action_catcher = catcher.greedy_action(state['catcher'], 0)
     
     #render the environment  
     env.render(i_episode)
@@ -80,8 +83,8 @@ for i_episode in range(1, num_episodes+1):
         next_state, reward, done, info = env.step(action_hustler, action_catcher)
 
         #provide feedback to agents
-        hustler.Q_learn(state['hustler'], action_hustler, reward['hustler'], next_state['hustler'])
-        catcher.Q_learn(state['catcher'], action_catcher, reward['catcher'], next_state['catcher'])
+        # hustler.Q_learn(state['hustler'], action_hustler, reward['hustler'], next_state['hustler'])
+        # catcher.Q_learn(state['catcher'], action_catcher, reward['catcher'], next_state['catcher'])
 
         gameDisplay.fill(WHITE) #background color
         env.render(i_episode)
@@ -108,14 +111,6 @@ for i_episode in range(1, num_episodes+1):
         # greedy action?
 
         # policy action?
-        action_hustler = hustler.greedy_action(state['hustler'], epsilon)
-        action_catcher = catcher.greedy_action(state['catcher'], epsilon)
+        action_hustler = hustler.greedy_action(state['hustler'], 0)
+        action_catcher = catcher.greedy_action(state['catcher'], 0)
 
-hustler.set_policy(saveQtable=False, dir='')
-catcher.set_policy(saveQtable=False, dir='')
-
-hustler.saveQtableToCsv('policies/'+str(num_episodes)+'hustler')
-catcher.saveQtableToCsv('policies/'+str(num_episodes)+'catcher')
-
-hustler.saveQtableToJson('policies/'+str(num_episodes)+'hustler')
-catcher.saveQtableToJson('policies/'+str(num_episodes)+'catcher')
