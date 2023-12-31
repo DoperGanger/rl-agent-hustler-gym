@@ -24,7 +24,7 @@ class Env():
         self.MOVES = {'hustler':100,'catcher':100}
 
         # GOAL
-        self.GOAL = pygame.transform.scale(pygame.image.load('sprites/door.png'),(self.BLOCK_WIDTH, self.BLOCK_HEIGHT))
+        self.GOAL = pygame.transform.scale(pygame.image.load('sprites/drugs.png'),(self.BLOCK_WIDTH, self.BLOCK_HEIGHT))
 
     # Set Obstacles Postion Array ( array of indices)
     def set_obstacles(self, obstacles:np.array): # Used to change the obstacles in the map

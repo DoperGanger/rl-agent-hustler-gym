@@ -26,6 +26,8 @@ class Agent:
         bias = random.random()
         if bias > epsilon:
             # take greedy policy if above epsilon
+            #print(self.Q[state])
+            #print(state)
             return np.argmax(self.Q[state])
         else:
             # explore when within epsilon
@@ -96,7 +98,8 @@ class Agent:
             Q = json.load(outfile)
         self.Q = defaultdict(lambda: np.zeros(self.possibleActions))
         for key, val in Q.items():
-            self.Q[key] = np.array(val)
+            self.Q[eval(key)] = np.array(val)
+        #print(self.Q)
 
     def savePolicyToCsv(self, dir):
         policy = dict(self.policy)
