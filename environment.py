@@ -38,7 +38,10 @@ class Env():
 
         # Draw Obstacles
         for pos in self.OBSTACLES:
-            pygame.draw.rect(self.DISPLAY, (0,0,255), [pos[0]*self.BLOCK_WIDTH, pos[1]*self.BLOCK_HEIGHT, self.BLOCK_WIDTH, self.BLOCK_HEIGHT])
+            #pygame.draw.rect(self.DISPLAY, (0,0,255), [pos[0]*self.BLOCK_WIDTH, pos[1]*self.BLOCK_HEIGHT, self.BLOCK_WIDTH, self.BLOCK_HEIGHT])
+            
+            obs_x, obs_y = self.indexToXY(pos)
+            pygame.draw.rect(self.DISPLAY, (34,49,29), [obs_x*self.BLOCK_WIDTH, obs_y*self.BLOCK_HEIGHT, self.BLOCK_WIDTH, self.BLOCK_HEIGHT])
 
         # Draw Info Panel
         if i_episode>=0:
@@ -51,17 +54,33 @@ class Env():
         
         # get set of map indices in a flat array
         indices = np.arange(self.WIDTH * self.HEIGHT)
+        goal_positions = [3,4,5, 13,14,15, 199,219,239, 385,384,383, 393,394,395]
 
         # remove indices of obstacles
         for v in indices:
             if v in self.OBSTACLES:
                 # pop value out of indices
                 indices = np.delete(indices, np.where(indices == v))
+        
+        # remove indices of goal
+        # for v in indices:
+        #     if v in goal_positions:
+        #         # pop value out of indices
+        #         indices = np.delete(indices, np.where(indices == v))
 
         # Random set all agent positions
-        self.HUSTLER_X, self.HUSTLER_Y = self.indexToXY(self.getRandomIndexPos(indices))
-        self.CATCHER_X, self.CATCHER_Y = self.indexToXY(self.getRandomIndexPos(indices))
-        self.GOAL_X, self.GOAL_Y = self.indexToXY(self.getRandomIndexPos(indices))
+        hustler_pos = self.getRandomIndexPos(indices)
+        self.HUSTLER_X, self.HUSTLER_Y = self.indexToXY(hustler_pos)
+        # pop out hustler position from indices
+        indices = np.delete(indices, np.where(indices == hustler_pos))
+        catcher_pos = self.getRandomIndexPos(indices)
+        self.CATCHER_X, self.CATCHER_Y = self.indexToXY(catcher_pos)
+        #self.GOAL_X, self.GOAL_Y = self.indexToXY(self.getRandomIndexPos(indices))
+
+        # pop out hustler position and catcher position from goal positions
+        goal_positions = np.delete(goal_positions, np.where(goal_positions == hustler_pos))
+        goal_positions = np.delete(goal_positions, np.where(goal_positions == catcher_pos))
+        self.GOAL_X, self.GOAL_Y = self.indexToXY(self.getRandomIndexPos(goal_positions))
 
         self.MOVES['hustler'] = 100
         self.MOVES['catcher'] = 100
@@ -127,11 +146,13 @@ class Env():
         
         # if hit obstacles we port them back to the start and penalize?
         for obs in self.OBSTACLES:
-            if self.HUSTLER_X == obs[0] and self.HUSTLER_Y == obs[1]:
+            obs_x, obs_y = self.indexToXY(obs)
+            #if self.HUSTLER_X == obs[0] and self.HUSTLER_Y == obs[1]:
+            if self.HUSTLER_X == obs_x and self.HUSTLER_Y == obs_y:
                 reward['hustler'] = -20
                 self.HUSTLER_X, self.HUSTLER_Y = (0,0)
 
-            if self.CATCHER_X == obs[0] and self.CATCHER_Y == obs[1]:    
+            if self.CATCHER_X == obs_x and self.CATCHER_Y == obs_y:    
                 reward['catcher'] = -20
                 self.CATCHER_X, self.CATCHER_Y = (0, self.HEIGHT -1)
         
