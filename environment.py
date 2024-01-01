@@ -99,8 +99,14 @@ class Env():
                 - Info about walls and obstacles in their neighborood?
         '''
         self.STATE = {'hustler':(self.HUSTLER_X - self.CATCHER_X, self.HUSTLER_Y - self.CATCHER_Y,
-                                self.HUSTLER_X - self.GOAL_X, self.HUSTLER_Y -  self.GOAL_Y), 
-                    'catcher':(self.CATCHER_X - self.HUSTLER_X, self.CATCHER_Y - self.HUSTLER_Y)}
+                                self.HUSTLER_X - self.GOAL_X, self.HUSTLER_Y -  self.GOAL_Y,
+                                # add map index for obstacle aware
+                                self.HUSTLER_Y*self.WIDTH + self.HUSTLER_X
+                                ), 
+                    'catcher':(self.CATCHER_X - self.HUSTLER_X, self.CATCHER_Y - self.HUSTLER_Y, 
+                                # add map index for obstacle aware
+                                self.CATCHER_Y*self.WIDTH + self.CATCHER_X
+                            )}
 
         return self.STATE
         
