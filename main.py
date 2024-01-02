@@ -58,13 +58,16 @@ hustler = Agent(env, possibleActions = 4)
 dir = 'policies/'
 # hustler.load_policy(dir+'mouse.pickle')
 # catcher.load_policy(dir+'cat.pickle')
+hustler.loadQtableFromJson(dir+'1goal1000hustlerQtable.json')
+catcher.loadQtableFromJson(dir+'1goal1000catcherQtable.json')
+
 
 # Init Stats
 total_goals_reached = 0
 total_hustlers_busted = 0
 
 # Init Learning Params
-num_episodes = 5000
+num_episodes = 10000
 epsilon, eps_decay, eps_min = 1.0, 0.99, 0.05
 
 for i_episode in range(1, num_episodes+1):
@@ -124,8 +127,8 @@ for i_episode in range(1, num_episodes+1):
 hustler.set_policy(saveQtable=False, dir='')
 catcher.set_policy(saveQtable=False, dir='')
 
-hustler.saveQtableToCsv('policies/'+str(num_episodes)+'hustler')
-catcher.saveQtableToCsv('policies/'+str(num_episodes)+'catcher')
+#hustler.saveQtableToCsv('policies/'+str(num_episodes)+'hustler')
+#catcher.saveQtableToCsv('policies/'+str(num_episodes)+'catcher')
 
-hustler.saveQtableToJson('policies/'+"obst_"+str(num_episodes)+'hustler')
-catcher.saveQtableToJson('policies/'+"obst_"+str(num_episodes)+'catcher')
+hustler.saveQtableToJson('policies/'+"1goal"+str(num_episodes)+'hustler')
+catcher.saveQtableToJson('policies/'+"1goal"+str(num_episodes)+'catcher')

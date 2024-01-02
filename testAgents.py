@@ -12,16 +12,16 @@ WHITE = (255,255,255)
 RED = (255, 0, 0)
 BLACK = (0,0,0)
 
-display_width, display_height = 500, 600
+display_width, display_height = 800, 900
 
 def show_info(goals, busts, game_display):
-    pygame.draw.rect(gameDisplay, BLACK, [0, 500, 500, 5])
+    pygame.draw.rect(gameDisplay, BLACK, [0, 800, 800, 5])
     font = pygame.font.SysFont(None, 40)
     text1 = font.render("Total Hustlers Escaped: "+str(goals), True, GREEN)
     text2 = font.render("Total Hustlers Busted: "+str(busts), True, RED)
     
-    game_display.blit(text1,(50,510))
-    game_display.blit(text2,(50,555))	
+    game_display.blit(text1,(50,810))
+    game_display.blit(text2,(50,855))	
 
 def draw_rect(game_display, color, x, y, width, height):
     pygame.draw.rect(game_display, color, [x*width, y*height, width, height], 10)
@@ -36,9 +36,19 @@ clock = pygame.time.Clock()
 
 
 # Initialize Environment
-env = Env(gameDisplay, 10, 10) #display, rows, columns
+env = Env(gameDisplay, 20, 20) #display, rows, columns
 # set obstacles config if any
-env.set_obstacles([])
+env.set_obstacles([
+    8, 9, 10, 17, 18, 19, 37, 38, 39, 42, 57, 58, 59, 67, 68, 69, 70, 71, 77,
+    78, 79, 80, 81, 82, 87, 88, 89, 90, 91, 97, 98, 99, 100, 101, 102, 
+    107,108,109,110,111,117,
+    118, 119, 120, 121, 122, 127, 128, 129, 130, 131, 137, 138, 139, 147, 148,
+    149, 150, 151, 152, 157, 158, 159, 161, 167, 176, 180, 181, 182, 200, 201,
+    202, 220, 221, 222, 246, 252, 261, 280, 281, 282, 287, 288, 289, 290, 291,
+    300, 301, 302, 307, 308, 309, 310, 311, 316, 320, 321, 322, 327, 328, 329,
+    330, 331, 338, 339, 347, 348, 349, 350, 351, 358, 359, 367, 368, 369, 370,
+    371, 378, 379, 391, 398, 399,
+    ])
 
 # Initialize Agents
 catcher = Agent(env, possibleActions = 4)
@@ -48,8 +58,8 @@ hustler = Agent(env, possibleActions = 4)
 dir = 'policies/'
 # hustler.load_policy(dir+'mouse.pickle')
 # catcher.load_policy(dir+'cat.pickle')
-hustler.loadQtableFromJson(dir+'5000hustlerQtable.json')
-catcher.loadQtableFromJson(dir+'5000catcherQtable.json')
+hustler.loadQtableFromJson(dir+'1goal5000hustlerQtable.json')
+catcher.loadQtableFromJson(dir+'1goal5000catcherQtable.json')
 
 
 # Init Stats

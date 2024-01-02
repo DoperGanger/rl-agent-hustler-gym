@@ -54,7 +54,7 @@ class Env():
         
         # get set of map indices in a flat array
         indices = np.arange(self.WIDTH * self.HEIGHT)
-        goal_positions = [3,4,5, 13,14,15, 199,219,239, 385,384,383, 393,394,395]
+        goal_positions = [199,219,239]
 
         # remove indices of obstacles
         for v in indices:
@@ -70,17 +70,19 @@ class Env():
 
         # Random set all agent positions
         hustler_pos = self.getRandomIndexPos(indices)
-        self.HUSTLER_X, self.HUSTLER_Y = self.indexToXY(hustler_pos)
+        #self.HUSTLER_X, self.HUSTLER_Y = self.indexToXY(hustler_pos)
+        self.HUSTLER_X, self.HUSTLER_Y = self.indexToXY(0)
         # pop out hustler position from indices
         indices = np.delete(indices, np.where(indices == hustler_pos))
         catcher_pos = self.getRandomIndexPos(indices)
-        self.CATCHER_X, self.CATCHER_Y = self.indexToXY(catcher_pos)
+        #self.CATCHER_X, self.CATCHER_Y = self.indexToXY(catcher_pos)
+        self.CATCHER_X, self.CATCHER_Y = (11,1)
         #self.GOAL_X, self.GOAL_Y = self.indexToXY(self.getRandomIndexPos(indices))
 
         # pop out hustler position and catcher position from goal positions
         goal_positions = np.delete(goal_positions, np.where(goal_positions == hustler_pos))
         goal_positions = np.delete(goal_positions, np.where(goal_positions == catcher_pos))
-        self.GOAL_X, self.GOAL_Y = self.indexToXY(self.getRandomIndexPos(goal_positions))
+        self.GOAL_X, self.GOAL_Y = self.indexToXY(219)
 
         self.MOVES['hustler'] = 100
         self.MOVES['catcher'] = 100
@@ -98,14 +100,21 @@ class Env():
                 - Manhattan distance between hustler and catcher
                 - Info about walls and obstacles in their neighborood?
         '''
-        self.STATE = {'hustler':(self.HUSTLER_X - self.CATCHER_X, self.HUSTLER_Y - self.CATCHER_Y,
-                                self.HUSTLER_X - self.GOAL_X, self.HUSTLER_Y -  self.GOAL_Y,
+        self.STATE = {'hustler':(
+                                #self.HUSTLER_X - self.CATCHER_X, self.HUSTLER_Y - self.CATCHER_Y,
+                                #self.HUSTLER_X - self.GOAL_X, self.HUSTLER_Y -  self.GOAL_Y,
+            
                                 # add map index for obstacle aware
-                                self.HUSTLER_Y*self.WIDTH + self.HUSTLER_X
+                                self.HUSTLER_Y*self.WIDTH + self.HUSTLER_X,
+                                self.CATCHER_Y*self.WIDTH + self.CATCHER_X,
+                                self.GOAL_Y*self.WIDTH + self.GOAL_X,
                                 ), 
-                    'catcher':(self.CATCHER_X - self.HUSTLER_X, self.CATCHER_Y - self.HUSTLER_Y, 
+                    'catcher':(
+                                #self.CATCHER_X - self.HUSTLER_X, self.CATCHER_Y - self.HUSTLER_Y, 
                                 # add map index for obstacle aware
-                                self.CATCHER_Y*self.WIDTH + self.CATCHER_X
+                                self.HUSTLER_Y*self.WIDTH + self.HUSTLER_X,
+                                self.CATCHER_Y*self.WIDTH + self.CATCHER_X,
+                                self.GOAL_Y*self.WIDTH + self.GOAL_X,
                             )}
 
         return self.STATE
@@ -174,6 +183,7 @@ class Env():
     def update_positions(self, hustler_action, catcher_action): # Update agents' position
         x_change_hustler, y_change_hustler = self.get_changes(hustler_action)
         x_change_catcher, y_change_catcher = self.get_changes(catcher_action)
+        #x_change_catcher, y_change_catcher = (0,0)
 
         self.HUSTLER_X += x_change_hustler 
         self.HUSTLER_Y += y_change_hustler
